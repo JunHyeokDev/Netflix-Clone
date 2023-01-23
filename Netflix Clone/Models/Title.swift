@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct TrendingMoviesReponse : Codable {
-    let results : [Movie]
+struct TrendingTitleReponse : Codable {
+    let results : [Title]
     
 }
 
 
 
 
-struct Movie : Codable {
+struct Title : Codable {
     let id : Int
     let media_type : String? // if db dosen't give the basic info, then it can be nil
     let original_name : String?
