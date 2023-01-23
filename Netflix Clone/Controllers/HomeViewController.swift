@@ -8,7 +8,10 @@
 import UIKit
 
 class HomeViewController: UIViewController {
+    
+    let sectionTitle: [String] = ["Trending Movies","Trending TV", "Popular", "Upcomming Movies","Top rated"]
 
+    
     private let homeFeedTable : UITableView = {
         let table = UITableView(frame: .zero, style: .grouped)
         // grouped?
@@ -28,13 +31,52 @@ class HomeViewController: UIViewController {
          
         homeFeedTable.delegate = self
         homeFeedTable.dataSource = self
+        configureNavBar()
+        let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450)) // 일단
+        homeFeedTable.tableHeaderView = headerView
         
-        homeFeedTable.tableHeaderView = UIView(frame: CGRect(x:0, y:0, width: view.bounds.width, height: 450))
+        fetchData()
     }
+    
+    
+    private func configureNavBar() {
+        var image = UIImage(named: "netflixLogo")
+        image = image?.withRenderingMode(.alwaysOriginal) // just use our image as it is!
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: image, style: .done , target: self, action: nil)
+        
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: UIImage(systemName: "person"), style: .done, target: self, action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "play.rectangle"), style: .done, target: self, action: nil),
+        ]
+        
+        navigationController?.navigationBar.tintColor = .white
+    }
+    
+    
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         homeFeedTable.frame = view.bounds
+    }
+    
+    private func fetchData() {
+//        APICaller.shared.getTrendingMovies { results in
+//            switch results {
+//            case .success(let movies):
+//                print(movies)
+//            case .failure(let error):
+//                print(error.localizedDescription)
+//            }
+//        }
+        
+//        APICaller.shared.getUpcomingMovies { _ in
+//
+//        }
+        
+        APICaller.shared.getPopular { _ in
+            
+        }
+        
     }
 
 
@@ -43,7 +85,7 @@ class HomeViewController: UIViewController {
 extension HomeViewController : UITableViewDelegate , UITableViewDataSource{
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 20
+        return sectionTitle.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -67,5 +109,33 @@ extension HomeViewController : UITableViewDelegate , UITableViewDataSource{
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+         //I want to stick my navigation items when I scroll up
+        // buy When I scroll down, It should go away
+        let defaultOffset = view.safeAreaInsets.top
+        let offset = scrollView.contentOffset.y + defaultOffset
+        navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
+        
+        //navigationController?.hidesBarsOnSwipe = true
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return sectionTitle[section]
+        // We can Assign the title of section like this!
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        // hey, I will dispaly Header view soon! So what should I do?
+        // -> Header Setting here
+        guard let header = view as? UITableViewHeaderFooterView else { return }
+        header.textLabel?.font =  .systemFont(ofSize: 16, weight: .semibold)
+        header.textLabel?.frame = CGRect(x: header.bounds.origin.x + 20, y: header.bounds.origin.y, width: 100, height: header.bounds.height)
+        // honestly I really don't know what's the differnt XD
+        header.textLabel?.textColor = .white
+        header.textLabel?.text = header.textLabel?.text?.capitalizeFirstletter()
+    }
+    
+    
     
 }
